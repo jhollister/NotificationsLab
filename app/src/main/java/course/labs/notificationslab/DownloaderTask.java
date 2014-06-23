@@ -1,16 +1,5 @@
 package course.labs.notificationslab;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.URL;
-
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -20,6 +9,16 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.URL;
 
 public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 
@@ -163,15 +162,15 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 
 						log("Entered result receiver's onReceive() method");
 
-						// TODO: Check whether the result code is RESULT_OK
 
-						if (/*change this*/ true) {
 
-							// TODO:  If so, create a PendingIntent using the
+						if (getResultCode() != MainActivity.RESULT_OK) {
+
+							// If so, create a PendingIntent using the
 							// restartMainActivityIntent and set its flags
 							// to FLAG_UPDATE_CURRENT
 							
-							final PendingIntent pendingIntent = null;
+							final PendingIntent pendingIntent = PendingIntent.getActivity(mParentActivity, 0, restartMainActivtyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 							
 
 
@@ -183,21 +182,34 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 									mApplicationContext.getPackageName(),
 									R.layout.custom_notification);
 
-							// TODO: Set the notification View's text to
+							// Set the notification View's text to
 							// reflect whether or the download completed
 							// successfully
+                            if (success) {
+                                mContentView.setTextViewText(R.id.text, successMsg);
+                            }
+                            else {
+                                mContentView.setTextViewText(R.id.text, failMsg);
+                            }
 
 
 							
-							// TODO: Use the Notification.Builder class to
+							// Use the Notification.Builder class to
 							// create the Notification. You will have to set
 							// several pieces of information. You can use
 							// android.R.drawable.stat_sys_warning
 							// for the small icon. You should also setAutoCancel(true). 
 
-							Notification.Builder notificationBuilder = null;
+							Notification.Builder notificationBuilder = new Notification.Builder(mParentActivity)
+                                    .setTicker("Download Notification")
+                                    .setSmallIcon(android.R.drawable.stat_sys_warning)
+                                    .setContentIntent(pendingIntent)
+                                    .setAutoCancel(true)
+                                    .setContent(mContentView);
 
-							// TODO: Send the notification
+							//  Send the notification
+                            NotificationManager manager = (NotificationManager) mParentActivity.getSystemService(Context.NOTIFICATION_SERVICE);
+                            manager.notify(MY_NOTIFICATION_ID, notificationBuilder.build());
 
 							
 							

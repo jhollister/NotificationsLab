@@ -1,15 +1,5 @@
 package course.labs.notificationslab;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -19,6 +9,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class MainActivity extends Activity implements SelectionListener {
 
@@ -80,19 +81,17 @@ public class MainActivity extends Activity implements SelectionListener {
 
 		if (!mIsFresh) {
 
-			// TODO:
 			// Show a Toast Notification to inform user that 
 			// the app is "Downloading Tweets from Network"
 			log ("Issuing Toast Message");
+            Toast.makeText(this, "Downloading Tweets from Network", Toast.LENGTH_LONG).show();
+			
 
-			
-			
-			// TODO:
 			// Start new AsyncTask to download Tweets from network
+            new DownloaderTask(this).execute(URL_LGAGA, URL_RBLACK, URL_TSWIFT);
 
 
 
-			
 			// Set up a BroadcastReceiver to receive an Intent when download
 			// finishes. 
 			mRefreshReceiver = new BroadcastReceiver() {
@@ -101,14 +100,18 @@ public class MainActivity extends Activity implements SelectionListener {
 
 					log("BroadcastIntent received in MainActivity");
 
-					// TODO:				
 					// Check to make sure this is an ordered broadcast
 					// Let sender know that the Intent was received
 					// by setting result code to RESULT_OK
+                    if (isOrderedBroadcast()) {
+                        setResultCode(RESULT_OK);
+                    }
 
 
 				}
 			};
+
+
 
 		} else {
 
@@ -176,9 +179,10 @@ public class MainActivity extends Activity implements SelectionListener {
 	protected void onResume() {
 		super.onResume();
 
-		// TODO:
 		// Register the BroadcastReceiver to receive a 
 		// DATA_REFRESHED_ACTION broadcast
+        IntentFilter filter = new IntentFilter(DATA_REFRESHED_ACTION);
+        registerReceiver(mRefreshReceiver, filter);
 
 
 		
@@ -187,8 +191,10 @@ public class MainActivity extends Activity implements SelectionListener {
 	@Override
 	protected void onPause() {
 
-		// TODO:
 		// Unregister the BroadcastReceiver
+        if (mRefreshReceiver != null) {
+            unregisterReceiver(mRefreshReceiver);
+        }
 
 
 		
